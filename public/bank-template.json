@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "id": "practice-demo",
+  "name": "学习方法示例",
+  "units": [
+    {
+      "id": "intro",
+      "name": "基础练习",
+      "questions": [
+        {
+          "id": "q1",
+          "type": "single",
+          "stem": "哪种方式可以检查自己是否记住了知识点？",
+          "options": ["主动回忆", "只抄标题"],
+          "answer": ["A"],
+          "explanation": "尝试从记忆中提取知识，可以检验掌握程度。"
+        },
+        {
+          "id": "q2",
+          "type": "multi",
+          "stem": "哪些方法有助于复习？",
+          "options": ["分散练习", "复盘错题", "忽略反馈"],
+          "answer": ["A", "B"]
+        },
+        {
+          "id": "q3",
+          "type": "judge",
+          "stem": "重练错题可以检验掌握情况。",
+          "options": ["正确", "错误"],
+          "answer": ["A"]
+        }
+      ]
+    }
+  ]
+}

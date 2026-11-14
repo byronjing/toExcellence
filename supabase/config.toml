@@ -1,0 +1,7 @@
+project_id = "toExcellence"
+[auth]
+enabled = true
+enable_signup = false
+site_url = "http://localhost:5173"
+[functions.api]
+verify_jwt = false

@@ -1,0 +1,446 @@
+body {
+  background: var(--surface);
+  color: var(--onSurface);
+}
+button {
+  border-radius: 999px;
+  transition:
+    transform 0.24s var(--spring),
+    background-color 0.16s;
+}
+button:active:not(:disabled),
+md-icon-button:active,
+md-fab:active,
+md-filled-button:active,
+md-filled-tonal-button:active {
+  transform: scale(0.97);
+}
+button:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: -3px;
+}
+.panel,
+.featuregrid article,
+.history,
+.hero {
+  border-radius: 20px;
+}
+.panel,
+.featuregrid article,
+.history,
+.auth {
+  background: var(--surfaceContainerLow);
+}
+.auth .primary {
+  min-height: 56px;
+  border-radius: 28px;
+}
+.authicon,
+.tile {
+  border-radius: 16px;
+}
+.inputicon md-icon {
+  flex-shrink: 0;
+}
+.loading,
+.empty {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  min-height: 50vh;
+}
+.studio {
+  height: 100dvh;
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  transition: grid-template-columns 0.45s var(--spring);
+  background: var(--surface);
+}
+.studio.compact {
+  grid-template-columns: 96px minmax(0, 1fr);
+}
+.rail {
+  padding: 16px 12px;
+  background: var(--surfaceContainer);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  overflow: hidden;
+}
+.railBrand,
+.railUser {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  white-space: nowrap;
+}
+.railBrand {
+  color: var(--primary);
+  font-size: 21px;
+  letter-spacing: -0.75px;
+}
+.railBrand b {
+  font-weight: 600;
+}
+.railUser {
+  margin-top: auto;
+  font-size: 14px;
+  color: var(--onSurfaceVariant);
+}
+.rail nav {
+  display: grid;
+  gap: 8px;
+}
+.rail nav button {
+  height: 56px;
+  position: relative;
+  overflow: hidden;
+  justify-content: flex-start;
+  border: 0;
+  background: transparent;
+  color: var(--onSurfaceVariant);
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 500;
+  gap: 8px;
+}
+.rail nav button[aria-current] {
+  background: var(--secondaryContainer);
+  color: var(--secondary);
+}
+.rail nav button[aria-current] md-icon {
+  color: var(--onSecondaryContainer);
+  font-variation-settings: "FILL" 1;
+}
+.compact .railBrand b,
+.compact .railUser span {
+  display: none;
+}
+.compact .railBrand,
+.compact .railUser {
+  justify-content: center;
+  padding: 0;
+}
+.compact .rail nav button {
+  height: 68px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  padding: 0;
+  font-size: 12px;
+  border-radius: 20px;
+}
+.stage {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: 64px minmax(0, 1fr);
+}
+.topbar {
+  padding: 0 16px;
+  display: grid;
+  grid-template-columns: 48px auto 48px;
+  align-items: center;
+  background: var(--surface);
+  z-index: 2;
+  transition: background 0.18s;
+}
+.topbar.raised {
+  background: var(--surfaceContainer);
+}
+.topbar h1 {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 28px;
+  margin: 0;
+}
+.topbar md-icon-button {
+  height: 48px;
+  width: 48px;
+}
+.menuAnchor {
+  position: relative;
+}
+.stageContent {
+  overflow: auto;
+  padding: 0 16px 16px;
+}
+.screen {
+  max-width: 1080px;
+  margin: auto;
+  animation: arrive 0.38s var(--spring);
+}
+html[data-back] .screen {
+  animation-name: returning;
+}
+@keyframes arrive {
+  from {
+    opacity: 0.35;
+    transform: translateX(14px) scale(0.99);
+  }
+}
+@keyframes returning {
+  from {
+    opacity: 0.35;
+    transform: translateX(-14px) scale(0.99);
+  }
+}
+.libraryScreen {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  position: relative;
+  padding: 20px clamp(0px, 3vw, 40px) 76px;
+}
+.libraryTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.connected,
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-wrap: nowrap;
+}
+.connected md-filled-button,
+.connected md-filled-tonal-button {
+  height: 56px;
+  --md-filled-button-container-height: 56px;
+  --md-filled-tonal-button-container-height: 56px;
+  --md-filled-button-leading-space: 24px;
+  --md-filled-tonal-button-leading-space: 24px;
+  --md-filled-button-trailing-space: 24px;
+  --md-filled-tonal-button-trailing-space: 24px;
+  --md-filled-button-container-shape: 28px;
+  --md-filled-button-container-shape-start-end: 8px;
+  --md-filled-button-container-shape-end-end: 8px;
+  --md-filled-tonal-button-container-shape: 28px;
+  --md-filled-tonal-button-container-shape-start-start: 8px;
+  --md-filled-tonal-button-container-shape-end-start: 8px;
+  transition: transform 0.2s var(--spring);
+}
+.connected .pressed {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 20px;
+}
+.bankGrid {
+  width: min(100%, 864px);
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 35px clamp(24px, 7.5vw, 96px);
+  padding: 32px 0;
+}
+.bankCard {
+  display: block;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  --md-filled-card-container-shape: 20px;
+  --md-filled-card-container-color: var(--surfaceContainerHighest);
+  background: var(--surfaceContainerHighest);
+}
+.cardOpen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+  gap: 0;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: var(--onSurface);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.cover {
+  height: clamp(128px, 19vh, 165px);
+  display: grid;
+  place-items: center;
+  position: relative;
+  isolation: isolate;
+  background: var(--secondaryContainer);
+  color: var(--secondary);
+  overflow: hidden;
+}
+.feature .cover {
+  background: var(--primaryContainer);
+  color: var(--primary);
+}
+.cover:before,
+.cover:after,
+.cover i {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  border-radius: 50%;
+  width: 54%;
+  aspect-ratio: 1;
+}
+.cover:before {
+  left: -18%;
+  top: -48%;
+}
+.cover:after {
+  right: -13%;
+  bottom: -55%;
+}
+.cover i {
+  width: 74px;
+  aspect-ratio: 1;
+  border: 0;
+  border-radius: 22px;
+  transform: rotate(-9deg);
+  background: color-mix(in srgb, var(--surface) 58%, transparent);
+}
+.subject .cover i {
+  border-radius: 50%;
+}
+.subject .cover:after {
+  width: 65%;
+  border-radius: 28%;
+  transform: rotate(22deg);
+}
+.caption {
+  padding: 12px 20px 20px;
+  display: grid;
+  gap: 4px;
+}
+.caption strong {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+}
+.caption > span {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--onSurfaceVariant);
+}
+.saveBank {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border-radius: 50%;
+  background: var(--surface);
+}
+.editFab {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  --md-fab-container-shape: 16px;
+}
+.detailScreen {
+  padding: 8px clamp(0px, 3vw, 40px) 48px;
+}
+.detailScreen h1 {
+  font-size: 24px;
+  font-weight: 500;
+}
+.detailScreen small {
+  font-size: 12px;
+}
+.editor {
+  display: grid;
+  gap: 16px;
+  min-width: min(340px, 68vw);
+}
+.editor .check {
+  flex-direction: row;
+  align-items: center;
+}
+.editor .check input {
+  width: auto;
+  accent-color: var(--primary);
+}
+md-dialog {
+  --md-dialog-container-shape: 28px;
+}
+.snack {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--inverseSurface);
+  color: var(--inverseOnSurface);
+  padding: 14px 20px;
+  border-radius: 14px;
+  z-index: 6;
+}
+.empty {
+  flex: 1;
+  color: var(--onSurfaceVariant);
+}
+.empty h2 {
+  font-size: 18px;
+  font-weight: 500;
+}
+@media (max-width: 759px) {
+  .rail {
+    padding-inline: 4px;
+  }
+  .studio.expanded {
+    grid-template-columns: min(36vw, 220px) minmax(0, 1fr);
+  }
+  .railBrand {
+    font-size: 15px;
+  }
+  .studio.compact {
+    grid-template-columns: 74px minmax(0, 1fr);
+  }
+  .stageContent {
+    padding-inline: 8px;
+  }
+  .bankGrid {
+    gap: 16px 8px;
+  }
+  .caption {
+    padding: 10px;
+  }
+  .cover {
+    height: 110px;
+  }
+  .libraryScreen {
+    padding-inline: 0;
+  }
+  .connected md-filled-button,
+  .connected md-filled-tonal-button {
+    --md-filled-button-leading-space: 10px;
+    --md-filled-tonal-button-leading-space: 10px;
+    --md-filled-button-trailing-space: 10px;
+    --md-filled-tonal-button-trailing-space: 10px;
+  }
+  .cover md-icon {
+    transform: scale(0.7);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+.auth md-outlined-text-field {
+  width: 100%;
+  --md-outlined-text-field-container-shape: 12px;
+}
+.auth md-filled-button {
+  --md-filled-button-container-height: 56px;
+}
+.authfoot md-text-button {
+  --md-text-button-container-height: 40px;
+}

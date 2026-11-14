@@ -1,0 +1,72 @@
+:root {
+  color-scheme: light;
+  --primary: #6750a4;
+  --md-sys-color-primary: var(--primary);
+  --onPrimary: #ffffff;
+  --md-sys-color-on-primary: var(--onPrimary);
+  --primaryContainer: #eaddff;
+  --md-sys-color-primary-container: var(--primaryContainer);
+  --onPrimaryContainer: #21005d;
+  --md-sys-color-on-primary-container: var(--onPrimaryContainer);
+  --secondary: #635a75;
+  --md-sys-color-secondary: var(--secondary);
+  --secondaryContainer: #e8def8;
+  --md-sys-color-secondary-container: var(--secondaryContainer);
+  --onSecondaryContainer: #1d192b;
+  --md-sys-color-on-secondary-container: var(--onSecondaryContainer);
+  --tertiaryContainer: #ffd8e4;
+  --md-sys-color-tertiary-container: var(--tertiaryContainer);
+  --onTertiaryContainer: #31111d;
+  --md-sys-color-on-tertiary-container: var(--onTertiaryContainer);
+  --surface: #fef7ff;
+  --md-sys-color-surface: var(--surface);
+  --surfaceContainerLow: #f7f2fa;
+  --md-sys-color-surface-container-low: var(--surfaceContainerLow);
+  --surfaceContainer: #f3edf7;
+  --md-sys-color-surface-container: var(--surfaceContainer);
+  --surfaceContainerHigh: #ece6f0;
+  --md-sys-color-surface-container-high: var(--surfaceContainerHigh);
+  --surfaceContainerHighest: #e6e0e9;
+  --md-sys-color-surface-container-highest: var(--surfaceContainerHighest);
+  --onSurface: #1d1b20;
+  --md-sys-color-on-surface: var(--onSurface);
+  --onSurfaceVariant: #49454f;
+  --md-sys-color-on-surface-variant: var(--onSurfaceVariant);
+  --outline: #79747e;
+  --md-sys-color-outline: var(--outline);
+  --outlineVariant: #cac4d0;
+  --md-sys-color-outline-variant: var(--outlineVariant);
+  --inverseSurface: #322f35;
+  --md-sys-color-inverse-surface: var(--inverseSurface);
+  --inverseOnSurface: #f5eff7;
+  --md-sys-color-inverse-on-surface: var(--inverseOnSurface);
+  --inversePrimary: #d0bcff;
+  --md-sys-color-inverse-primary: var(--inversePrimary);
+  --error: #b3261e;
+  --md-sys-color-error: var(--error);
+  --onError: #ffffff;
+  --md-sys-color-on-error: var(--onError);
+  --errorContainer: #f9dedc;
+  --md-sys-color-error-container: var(--errorContainer);
+  --onErrorContainer: #410e0b;
+  --md-sys-color-on-error-container: var(--onErrorContainer);
+  --md-sys-color-shadow: var(--inverseSurface);
+  --md-sys-color-scrim: var(--inverseSurface);
+  --md-ref-typeface-brand: Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --md-ref-typeface-plain: var(--md-ref-typeface-brand);
+  --md-icon-font: "Material Symbols Rounded";
+  --spring: linear(0, 0.42 14%, 0.76 28%, 0.96 42%, 1.035 57%, 1.02 73%, 1);
+}
+@font-face {
+  font-family: Roboto;
+  src: url("./fonts/roboto-latin.woff2")
+    format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Material Symbols Rounded";
+  src: url("./fonts/symbols-rounded.ttf") format("truetype");
+  font-weight: 100 700;
+  font-display: block;
+}

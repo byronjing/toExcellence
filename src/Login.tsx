@@ -1,20 +1,17 @@
 import { useState, type FormEvent } from "react";
 import {
-  ArrowUpRight,
-  ArrowRight,
+  md,
+  SymbolIcon,
   BookOpen,
   Check,
   CheckCheck,
   Clock3,
-  Eye,
-  EyeOff,
   Layers3,
   LockKeyhole,
   NotebookPen,
   Shuffle,
   Sparkles,
-  UserRound,
-} from "lucide-react";
+} from "./material";
 import { db, api, modes } from "./api";
 export function Mark() {
   return (
@@ -150,53 +147,57 @@ export default function Login() {
                 : "使用已获批准的账号继续学习。"}
             </p>
             <form onSubmit={submit}>
-              <label>
-                用户名
-                <div className="inputicon">
-                  <UserRound />
-                  <input
-                    name="username"
-                    required
-                    minLength={3}
-                    maxLength={32}
-                    pattern="[A-Za-z0-9_]{3,32}"
-                    autoComplete="username"
-                    placeholder="请输入用户名"
-                  />
-                </div>
-              </label>
-              <label>
-                密码
-                <div className="inputicon">
-                  <LockKeyhole />
-                  <input
-                    name="password"
-                    type={show ? "text" : "password"}
-                    required
-                    minLength={apply ? 8 : 1}
-                    autoComplete={apply ? "new-password" : "current-password"}
-                    placeholder={apply ? "至少 8 位字符" : "请输入密码"}
-                  />
-                  <button
-                    className="bare"
-                    type="button"
-                    aria-label="切换密码显示"
-                    onClick={() => setShow(!show)}
-                  >
-                    {show ? <EyeOff /> : <Eye />}
-                  </button>
-                </div>
-              </label>
+              {md(
+                "md-outlined-text-field",
+                {
+                  label: "用户名",
+                  name: "username",
+                  required: true,
+                  minLength: 3,
+                  maxLength: 32,
+                  pattern: "[A-Za-z0-9_]{3,32}",
+                  autocomplete: "username",
+                },
+                <SymbolIcon slot="leading-icon" name="person" />,
+              )}
+              {md(
+                "md-outlined-text-field",
+                {
+                  label: "密码",
+                  name: "password",
+                  required: true,
+                  type: show ? "text" : "password",
+                  minLength: apply ? 8 : 1,
+                  autocomplete: apply ? "new-password" : "current-password",
+                },
+                <SymbolIcon slot="leading-icon" name="lock" />,
+                md(
+                  "md-icon-button",
+                  {
+                    slot: "trailing-icon",
+                    type: "button",
+                    "aria-label": show ? "隐藏密码" : "显示密码",
+                    onClick: () => setShow(!show),
+                  },
+                  <SymbolIcon name={show ? "visibility_off" : "visibility"} />,
+                ),
+              )}
               {apply && (
                 <>
-                  <label>
-                    姓名
-                    <input name="name" required maxLength={80} />
-                  </label>
-                  <label>
-                    申请理由
-                    <textarea name="reason" required maxLength={1000} />
-                  </label>
+                  {md("md-outlined-text-field", {
+                    label: "姓名",
+                    required: true,
+                    name: "name",
+                    maxLength: 80,
+                  })}
+                  {md("md-outlined-text-field", {
+                    label: "申请理由",
+                    required: true,
+                    name: "reason",
+                    type: "textarea",
+                    rows: 2,
+                    maxLength: 1000,
+                  })}
                 </>
               )}
               {msg && (
@@ -204,22 +205,26 @@ export default function Login() {
                   {msg}
                 </div>
               )}
-              <button className="primary" disabled={busy}>
-                {busy ? "正在处理…" : apply ? "提交申请" : "登录"}
-                <ArrowRight size={17} />
-              </button>
+              {md(
+                "md-filled-button",
+                { type: "submit", disabled: busy },
+                busy ? "正在处理…" : apply ? "提交申请" : "登录",
+                <SymbolIcon slot="icon" name="arrow_forward" />,
+              )}
             </form>
             <div className="authfoot">
               {apply ? "已有学习账号？" : "还没有账号？"}{" "}
-              <button
-                className="link"
-                onClick={() => {
-                  setApply(!apply);
-                  setMsg("");
-                }}
-              >
-                {apply ? "返回登录" : "申请注册"} <ArrowUpRight size={14} />
-              </button>
+              {md(
+                "md-text-button",
+                {
+                  onClick: () => {
+                    setApply(!apply);
+                    setMsg("");
+                  },
+                },
+                apply ? "返回登录" : "申请注册",
+                <SymbolIcon slot="icon" name="north_east" />,
+              )}
             </div>
           </section>
         </div>

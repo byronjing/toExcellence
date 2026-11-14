@@ -1,13 +1,7 @@
 :root {
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    "PingFang SC",
-    "Microsoft YaHei",
-    sans-serif;
-  color: #202e25;
-  background: #f7f8f3;
+  font-family: var(--md-ref-typeface-plain);
+  color: var(--onSurface);
+  background: var(--surfaceContainerLow);
   font-synthesis: none;
 }
 * {
@@ -31,9 +25,9 @@ button {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: white;
-  border: 1px solid #d9dfd7;
-  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--outlineVariant);
+  border-radius: 12px;
   padding: 9px 15px;
   color: inherit;
 }
@@ -43,7 +37,7 @@ button:disabled {
 }
 button:focus-visible,
 a:focus-visible {
-  outline: 3px solid #80ad91;
+  outline: 3px solid var(--primary);
   outline-offset: 3px;
 }
 .publichead {
@@ -53,8 +47,8 @@ a:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 15px;
-  background: #fdfefa;
-  border-bottom: 1px solid #dde1d9;
+  background: var(--surface);
+  border-bottom: 1px solid var(--outlineVariant);
 }
 .brand,
 .headnote,
@@ -81,17 +75,17 @@ a:focus-visible {
   display: grid;
   place-items: center;
   border-radius: 10px;
-  background: #234833;
-  color: #fff;
+  background: var(--primary);
+  color: var(--onPrimary);
 }
 .headnote {
   font-size: 13px;
-  color: #57675a;
+  color: var(--onSurfaceVariant);
 }
 .dot {
   width: 7px;
   height: 7px;
-  background: #7c9a49;
+  background: var(--primary);
   border-radius: 50%;
 }
 .landing,
@@ -104,22 +98,30 @@ a:focus-visible {
   grid-template-columns: 1.48fr 1fr;
   margin-top: 44px;
   min-height: 450px;
-  border: 1px solid #dce2d7;
+  border: 1px solid var(--outlineVariant);
   border-radius: 20px;
   overflow: hidden;
-  background: #fff;
-  box-shadow: 0 8px 24px #273c2608;
+  background: var(--onPrimary);
+  box-shadow: 0 8px 24px
+    color-mix(in srgb, var(--inverseSurface) 4%, transparent);
 }
 .poster {
   position: relative;
   isolation: isolate;
   overflow: hidden;
   padding: 48px 42px;
-  background-color: #214c39;
-  color: #fff;
+  background-color: var(--primary);
+  color: var(--onPrimary);
   background-image:
-    linear-gradient(#d6edd909 1px, transparent 1px),
-    linear-gradient(90deg, #d6edd909 1px, transparent 1px);
+    linear-gradient(
+      color-mix(in srgb, var(--onPrimary) 5%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--onPrimary) 5%, transparent) 1px,
+      transparent 1px
+    );
   background-size: 28px 28px;
 }
 .posterlabel,
@@ -127,13 +129,13 @@ a:focus-visible {
   font-size: 11px;
   letter-spacing: 2px;
   font-weight: 650;
-  color: #d3e7c8;
+  color: var(--primaryContainer);
 }
 .posterlabel span,
 .sectiontitle i {
   width: 25px;
   height: 3px;
-  background: #c8e082;
+  background: var(--primaryContainer);
 }
 .poster h1 {
   position: relative;
@@ -145,15 +147,15 @@ a:focus-visible {
 }
 .poster h1 em {
   font-style: normal;
-  color: #d6eaa2;
+  color: var(--primaryContainer);
 }
 .poster h1 em span {
-  color: #e8b674;
+  color: var(--tertiaryContainer);
 }
 .poster p {
   font-size: 14px;
   line-height: 1.95;
-  color: #e1eadf;
+  color: var(--onPrimary);
   position: relative;
   z-index: 2;
 }
@@ -167,7 +169,7 @@ a:focus-visible {
 .posterfoot span {
   height: 1px;
   width: 24px;
-  background: #afc9a8;
+  background: var(--outlineVariant);
 }
 .art {
   position: absolute;
@@ -180,7 +182,8 @@ a:focus-visible {
 }
 .orbit {
   position: absolute;
-  border: 1px dashed #a6c6a370;
+  border: 1px dashed
+    color-mix(in srgb, var(--primaryContainer) 45%, transparent);
   border-radius: 50%;
   inset: -9% -18%;
   transform: rotate(-25deg);
@@ -191,21 +194,21 @@ a:focus-visible {
   border-radius: 9px;
 }
 .paper.back {
-  background: #9cbd8e;
+  background: var(--outlineVariant);
   transform: rotate(16deg) translate(12px, 0);
-  box-shadow: 4px 6px #153f31;
+  box-shadow: 4px 6px var(--onPrimaryContainer);
 }
 .paper.front {
-  background: #f3f2d7;
-  color: #34583e;
-  border: 1px solid #34583e;
+  background: var(--surfaceContainerLow);
+  color: var(--primary);
+  border: 1px solid var(--primary);
   padding: 16px;
-  box-shadow: 4px 4px #163c2d;
+  box-shadow: 4px 4px var(--onPrimaryContainer);
 }
 .paperhead {
   font-size: 8px;
   letter-spacing: 1px;
-  border-bottom: 1px solid #a7b79d;
+  border-bottom: 1px solid var(--outlineVariant);
   padding-bottom: 9px;
   display: flex;
   align-items: center;
@@ -217,12 +220,12 @@ a:focus-visible {
   line-height: 1.18;
 }
 .paper b span {
-  color: #91a64f;
+  color: var(--secondary);
 }
 .rule,
 .fakecheck i {
   height: 3px;
-  background: #bdc8a9;
+  background: var(--outlineVariant);
   margin: 6px 0;
 }
 .rule.small {
@@ -246,15 +249,15 @@ a:focus-visible {
   width: 49px;
   height: 49px;
   border-radius: 50%;
-  background: #d7e99b;
-  color: #2d4b32;
-  border: 3px double #607a4d;
+  background: var(--primaryContainer);
+  color: var(--onPrimaryContainer);
+  border: 3px double var(--primary);
 }
 .spark {
   position: absolute;
   top: -10px;
   right: 7px;
-  color: #d9e7a2;
+  color: var(--primaryContainer);
 }
 .auth {
   padding: 36px clamp(23px, 3.7vw, 58px);
@@ -266,8 +269,8 @@ a:focus-visible {
   border-radius: 10px;
   width: 39px;
   height: 39px;
-  background: #e8f0e4;
-  color: #48694b;
+  background: var(--primaryContainer);
+  color: var(--primary);
 }
 .auth h2 {
   font-size: 30px;
@@ -278,7 +281,7 @@ a:focus-visible {
 .featuregrid p,
 .workspace p,
 small {
-  color: #627166;
+  color: var(--onSurfaceVariant);
 }
 .auth p,
 .featuregrid p {
@@ -305,21 +308,21 @@ select,
 textarea {
   width: 100%;
   min-width: 0;
-  color: #25362b;
-  border: 1px solid #d8dfd5;
-  background: #fcfdfa;
-  border-radius: 8px;
+  color: var(--onSurface);
+  border: 1px solid var(--outlineVariant);
+  background: var(--surface);
+  border-radius: 12px;
   padding: 11px;
-  outline-color: #62876b;
+  outline-color: var(--primary);
 }
 .inputicon {
   display: flex;
   align-items: center;
-  border: 1px solid #d8dfd5;
-  border-radius: 8px;
+  border: 1px solid var(--outlineVariant);
+  border-radius: 12px;
   padding: 0 11px;
-  color: #828f83;
-  background: #fcfdfa;
+  color: var(--onSurfaceVariant);
+  background: var(--surface);
 }
 .inputicon input {
   border: none;
@@ -330,28 +333,28 @@ textarea {
   flex-shrink: 0;
 }
 .primary {
-  background: #28533c;
-  border-color: #28533c;
-  color: white;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--onPrimary);
   font-weight: 650;
   min-height: 41px;
 }
 .primary:hover {
-  background: #1c432e;
+  background: var(--primary);
 }
 .auth .primary {
   justify-content: space-between;
   margin-top: 4px;
 }
 .authfoot {
-  border-top: 1px solid #e1e5dc;
+  border-top: 1px solid var(--outlineVariant);
   margin-top: 19px;
   padding-top: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 13px;
-  color: #687469;
+  color: var(--onSurfaceVariant);
 }
 .bare,
 .link,
@@ -363,7 +366,7 @@ textarea {
 .link,
 a,
 .backlink {
-  color: #315d41;
+  color: var(--primary);
 }
 .link {
   font-weight: 700;
@@ -378,7 +381,7 @@ a,
 .sectiontitle i {
   width: 4px;
   height: 18px;
-  background: #708e53;
+  background: var(--primary);
   border-radius: 4px;
 }
 .sectiontitle h2 {
@@ -393,9 +396,9 @@ a,
 .featuregrid article,
 .panel,
 .history {
-  border: 1px solid #dce2d7;
+  border: 1px solid var(--outlineVariant);
   border-radius: 13px;
-  background: #fff;
+  background: var(--onPrimary);
 }
 .featuregrid article {
   padding: 20px;
@@ -410,23 +413,23 @@ a,
   line-height: 1.6;
 }
 .orange {
-  background: #f8ecde;
-  color: #ad783f;
+  background: var(--tertiaryContainer);
+  color: var(--secondary);
 }
 .blue {
-  background: #e8eff3;
-  color: #51788b;
+  background: var(--secondaryContainer);
+  color: var(--secondary);
 }
 .purple {
-  background: #eeebf6;
-  color: #81709b;
+  background: var(--secondaryContainer);
+  color: var(--secondary);
 }
 footer {
   width: min(1192px, 88%);
   margin: auto;
   padding: 18px 0 30px;
-  border-top: 1px solid #dce2d7;
-  color: #758075;
+  border-top: 1px solid var(--outlineVariant);
+  color: var(--onSurfaceVariant);
   font-size: 12px;
 }
 footer span {
@@ -462,13 +465,13 @@ footer span {
 }
 .tabs .active,
 .options .selected {
-  background: #eaf2e3;
-  border-color: #71976c;
+  background: var(--primaryContainer);
+  border-color: var(--primary);
 }
 .notice,
 .feedback {
   padding: 12px;
-  background: #edf2e3;
+  background: var(--primaryContainer);
   border-radius: 7px;
   font-size: 14px;
   margin: 10px 0;
@@ -497,13 +500,13 @@ footer span {
 }
 .options b {
   font-size: 13px;
-  border: 1px solid #cbd5c8;
+  border: 1px solid var(--outlineVariant);
   border-radius: 5px;
   padding: 2px 6px;
 }
 .options .correct {
-  background: #e2efdc;
-  border-color: #659566;
+  background: var(--primaryContainer);
+  border-color: var(--primary);
 }
 .practice h2 {
   margin: 20px 0;
@@ -511,16 +514,16 @@ footer span {
 .practice progress {
   width: 100%;
   height: 6px;
-  accent-color: #507a4e;
+  accent-color: var(--primary);
   margin: 20px 0;
 }
 .kicker {
-  color: #456b50;
+  color: var(--primary);
   font-weight: bold;
 }
 .request {
   padding: 12px 0;
-  border-top: 1px solid #e3e6df;
+  border-top: 1px solid var(--outlineVariant);
 }
 .request small {
   margin-left: 12px;

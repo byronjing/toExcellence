@@ -325,7 +325,7 @@ export default function Shell({
             ) : page === "admin" && h.user.admin ? (
               <Admin home={h} refresh={refresh} />
             ) : page === "run" ? (
-              <Practice id={bankId} />
+              <Practice key={bankId} uid={uid} id={bankId} />
             ) : (
               <Dashboard
                 home={h}

@@ -645,3 +645,9 @@ fieldset {
     flex-wrap: wrap;
   }
 }
+.practice .wrong-text {
+  color: var(--error);
+}
+.practice .correct-text {
+  color: #18743b;
+}

@@ -1,6 +1,10 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { api, go, modes, types, type Run } from "./api";
-export default function Practice({ id }: { id: string }) {
+import { practiceSync } from "./practiceSync";
+export default function Practice({ id, uid }: { id: string; uid: string }) {
+  const sync = useMemo(() => practiceSync(uid, id, api<Run>), [uid, id]);
+  const live = useRef(false);
+  const [syncing, setSyncing] = useState(false);
   const [run, set] = useState<Run | null>(null),
     [picked, pick] = useState<string[]>([]),
     [busy, wait] = useState(false),
@@ -12,9 +16,33 @@ export default function Practice({ id }: { id: string }) {
     locked = useRef(false);
   function accept(r: Run) {
     offset.current = Date.parse(r.serverTime) - Date.now();
-    set(r);
-    pick(r.answers[r.items[r.pos].id] || []);
+    set(sync.project(r));
     time(Date.now());
+  }
+  async function flush() {
+    setSyncing(true);
+    try {
+      await sync.flush((r) => {
+        if (live.current) accept(r);
+      });
+      if (live.current) error("");
+    } catch (e) {
+      if (live.current) error((e as Error).message);
+      throw e;
+    } finally {
+      if (live.current) setSyncing(false);
+    }
+  }
+  function change(c: Parameters<typeof sync.enqueue>[0]) {
+    if (!run || locked.current) return;
+    try {
+      sync.enqueue(c);
+      set(sync.project(run));
+      pick([]);
+      void flush().catch(() => {});
+    } catch (e) {
+      error((e as Error).message);
+    }
   }
   async function act(op: string, p: Record<string, unknown> = {}) {
     if (locked.current) return;
@@ -22,19 +50,33 @@ export default function Practice({ id }: { id: string }) {
     wait(true);
     error("");
     try {
-      const r = await api<Run>(op, { id, ...p });
-      accept(r);
+      if (op !== "get") await flush();
+      const r =
+        op === "get" ? await sync.load() : await api<Run>(op, { id, ...p });
+      if (live.current && r.id === id) {
+        accept(r);
+        if (sync.hasPending()) await flush();
+      }
       return r;
     } catch (e) {
-      error((e as Error).message);
+      if (live.current) error((e as Error).message);
     } finally {
       locked.current = false;
-      wait(false);
+      if (live.current) wait(false);
     }
   }
   useEffect(() => {
+    live.current = true;
     void act("get");
-  }, [id]);
+    const retry = () => {
+      if (sync.hasPending()) void flush().catch(() => {});
+    };
+    window.addEventListener("online", retry);
+    return () => {
+      live.current = false;
+      window.removeEventListener("online", retry);
+    };
+  }, [sync]);
   useEffect(() => {
     if (!run?.deadline || run.finished) return;
     const h = setInterval(() => time(Date.now()), 1000);
@@ -61,22 +103,25 @@ export default function Practice({ id }: { id: string }) {
     q = run.items[idx],
     saved = run.answers[q.id],
     graded = !!q.answer,
-    selected = graded ? saved || [] : picked;
+    submitted = graded || (!exam && !!saved),
+    wrong = graded && JSON.stringify(q.answer) !== JSON.stringify(saved),
+    markWrong = wrong && !!saved?.length,
+    selected = submitted || exam ? saved || [] : picked;
   const score = run.items.filter(
     (x) =>
       x.answer &&
       JSON.stringify(x.answer) === JSON.stringify(run.answers[x.id]),
   ).length;
-  async function choose(a: string) {
-    if (graded || busy) return;
+  function choose(a: string) {
+    if (submitted || busy) return;
     const next =
       q.type === "multi"
-        ? picked.includes(a)
-          ? picked.filter((v) => v !== a)
-          : [...picked, a].sort()
+        ? selected.includes(a)
+          ? selected.filter((v) => v !== a)
+          : [...selected, a].sort()
         : [a];
     if (exam) {
-      await act("answer", { question: q.id, answer: next });
+      change({ op: "answer", question: q.id, answer: next });
     } else pick(next);
   }
   async function finish() {
@@ -92,7 +137,7 @@ export default function Practice({ id }: { id: string }) {
       <div className="spread">
         <span className="kicker">{modes[run.mode]}</span>
         <small>
-          {busy ? "正在同步…" : err ? "同步失败" : "已同步到云端"}{" "}
+          {err ? "同步失败" : busy || syncing ? "正在同步…" : "已同步到云端"}{" "}
           {left !== null &&
             !run.finished &&
             " · 剩余 " +
@@ -113,17 +158,24 @@ export default function Practice({ id }: { id: string }) {
         </small>
         {q.supplement && <small>补充题</small>}
       </div>
-      <h2>{q.stem}</h2>
+      <h2 className={markWrong ? "wrong-text" : undefined}>{q.stem}</h2>
       <div className="options">
         {q.options.map((v, i) => {
           const a = String.fromCharCode(65 + i);
           return (
             <button
               key={a}
-              disabled={busy || graded}
+              disabled={busy || submitted}
               className={
                 (selected.includes(a) ? "selected " : "") +
-                (graded && q.answer?.includes(a) ? "correct" : "")
+                (graded && q.answer?.includes(a) ? "correct " : "") +
+                (markWrong && q.type === "single"
+                  ? q.answer?.includes(a)
+                    ? "correct-text"
+                    : selected.includes(a)
+                      ? "wrong-text"
+                      : ""
+                  : "")
               }
               onClick={() => choose(a)}
             >
@@ -135,11 +187,7 @@ export default function Practice({ id }: { id: string }) {
       </div>
       {graded && (
         <div className="feedback">
-          <b>
-            {JSON.stringify(q.answer) === JSON.stringify(saved)
-              ? "回答正确"
-              : "回答错误"}
-          </b>
+          <b>{wrong ? "回答错误" : "回答正确"}</b>
           　正确答案 {q.answer?.join("、")}　你的答案{" "}
           {saved?.join("、") || "未答"}
           {q.explanation && <p>{q.explanation}</p>}
@@ -155,32 +203,34 @@ export default function Practice({ id }: { id: string }) {
           <button
             disabled={busy}
             onClick={() =>
-              run.finished ? at(idx - 1) : act("move", { pos: idx - 1 })
+              run.finished ? at(idx - 1) : change({ op: "move", pos: idx - 1 })
             }
           >
             上一题
           </button>
         )}
-        {!run.finished && !exam && !graded && (
+        {!run.finished && !exam && !submitted && (
           <button
             className="primary"
             disabled={!picked.length || busy}
-            onClick={() => act("answer", { question: q.id, answer: picked })}
+            onClick={() =>
+              change({ op: "answer", question: q.id, answer: picked })
+            }
           >
             提交答案
           </button>
         )}
-        {(exam || graded) && idx < run.total - 1 && (
+        {(exam || submitted) && idx < run.total - 1 && (
           <button
             disabled={busy}
             onClick={() =>
-              run.finished ? at(idx + 1) : act("move", { pos: idx + 1 })
+              run.finished ? at(idx + 1) : change({ op: "move", pos: idx + 1 })
             }
           >
             下一题
           </button>
         )}
-        {!run.finished && (exam || (graded && idx === run.total - 1)) && (
+        {!run.finished && (exam || (submitted && idx === run.total - 1)) && (
           <button
             className="primary"
             disabled={busy}

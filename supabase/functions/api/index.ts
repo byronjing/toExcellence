@@ -19,6 +19,9 @@ const reply = (data: unknown, status = 200) =>
 const email = (name: string) => name + "@users.toexcellence.invalid";
 const allowed = new Set([
   "home",
+  "sync",
+  "rate",
+  "export",
   "start",
   "get",
   "answer",

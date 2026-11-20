@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { MdMenu } from "@material/web/menu/menu.js";
-import { db, go, type Bank, type Home } from "./api";
+import { api, db, go, type Run, type Bank, type Home } from "./api";
 import Dashboard from "./Dashboard";
+import { flushAll } from "./practiceSync";
 import Admin from "./Admin";
 import Practice from "./Practice";
 import { Action, IconAction, SymbolIcon, md } from "./material";
@@ -105,6 +106,12 @@ export default function Shell({
     [message, notify] = useState("");
   const menu = useRef<MdMenu>(null),
     content = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const breakpoint = matchMedia("(min-width: 760px)");
+    const resize = () => setWide(breakpoint.matches);
+    breakpoint.addEventListener("change", resize);
+    return () => breakpoint.removeEventListener("change", resize);
+  }, []);
   useEffect(() => {
     content.current?.scrollTo(0, 0);
     setScrolled(false);
@@ -214,6 +221,11 @@ export default function Shell({
               h.user.admin &&
                 menuItem("管理后台", "settings", () => go("admin")),
               menuItem("退出登录", "logout", async () => {
+                try {
+                  await flushAll(uid, api<Run>);
+                } catch {
+                  notify("未同步记录已保留，请使用原账号登录后继续同步");
+                }
                 const { error } = await db.auth.signOut({ scope: "local" });
                 if (error) notify("退出失败，请重试");
               }),
@@ -328,6 +340,7 @@ export default function Shell({
               <Practice key={bankId} uid={uid} id={bankId} />
             ) : (
               <Dashboard
+                uid={uid}
                 home={h}
                 initialMode={
                   ["unit", "random", "exam", "wrong"].includes(page)

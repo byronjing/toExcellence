@@ -5,8 +5,39 @@ export const db = createClient(
   import.meta.env.VITE_SUPABASE_KEY ||
     "sb_publishable_y1-Ddfy_VF-H0v35fR94og_yhIMY4VV",
 );
-export async function api<T>(op: string, p: unknown = {}): Promise<T> {
-  const { data, error } = await db.functions.invoke("api", { body: { op, p } });
+export async function api<T>(
+  op: string,
+  p: unknown = {},
+  keepalive = false,
+): Promise<T> {
+  if (keepalive) {
+    const {
+      data: { session },
+    } = await db.auth.getSession();
+    if (!session) throw new Error("请重新登录后同步");
+    const response = await fetch(
+      (import.meta.env.VITE_SUPABASE_URL ||
+        "https://omuyuybdustwqnecesny.supabase.co") + "/functions/v1/api",
+      {
+        method: "POST",
+        keepalive: true,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + session.access_token,
+          apikey:
+            import.meta.env.VITE_SUPABASE_KEY ||
+            "sb_publishable_y1-Ddfy_VF-H0v35fR94og_yhIMY4VV",
+        },
+        body: JSON.stringify({ op, p: { ...(p as object), clientVersion: 2 } }),
+      },
+    );
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "同步失败");
+    return data;
+  }
+  const { data, error } = await db.functions.invoke("api", {
+    body: { op, p: { ...(p as object), clientVersion: 2 } },
+  });
   if (error) {
     let message = "连接失败，请检查网络后重试";
     try {
@@ -33,11 +64,21 @@ export interface Plan {
   minutes: number;
   counts: Record<string, number>;
 }
+export interface Mistake {
+  id: string;
+  stem: string;
+  bank: string;
+  unit: string;
+  streak: number;
+  mastery: number;
+  masterySource?: string;
+  masteryUpdatedAt?: string | null;
+}
 export interface Home {
   user: { name: string; admin: boolean };
   banks: Bank[];
   plans: Plan[];
-  mistakes: { id: string; stem: string; bank: string; streak: number }[];
+  mistakes: Mistake[];
   history: {
     id: string;
     mode: string;
@@ -56,9 +97,11 @@ export interface Question {
   answer?: string[];
   explanation?: string;
   supplement?: boolean;
+  unit?: string;
 }
 export interface Run {
   bank: string;
+  mastery: Record<string, number>;
   id: string;
   mode: string;
   pos: number;
@@ -67,6 +110,7 @@ export interface Run {
   answers: Record<string, string[]>;
   deadline: string | null;
   serverTime: string;
+  receivedAt?: number;
   finished: boolean;
 }
 export const types: Record<string, string> = {

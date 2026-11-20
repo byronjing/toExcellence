@@ -1,15 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api, go, modes, type Home, type Run } from "./api";
+import { flushAll, localHome } from "./practiceSync";
+import { exportMistakes } from "./mistakeExport";
 import { ChevronRight } from "./material";
 export default function Dashboard({
-  home: h,
+  home,
+  uid,
   initialMode,
   initialBank,
 }: {
   home: Home;
+  uid: string;
   initialMode: string;
   initialBank?: string;
 }) {
+  const [, rerender] = useState(0);
+  useEffect(() => {
+    const refresh = () => rerender((n) => n + 1);
+    window.addEventListener("study-local", refresh);
+    window.addEventListener("storage", refresh);
+    return () => {
+      window.removeEventListener("study-local", refresh);
+      window.removeEventListener("storage", refresh);
+    };
+  }, []);
+  const h = localHome(home, uid, api<Run>);
+  const [query, setQuery] = useState(""),
+    [level, setLevel] = useState(-1),
+    [filterUnit, setFilterUnit] = useState("");
+  const [selected, setSelected] = useState<string[]>([]),
+    [exporting, setExporting] = useState(false),
+    [message, setMessage] = useState("");
   const mode = initialMode;
   const [bid, bank] = useState(initialBank || h.banks[0]?.id || ""),
     [unit, setUnit] = useState(""),
@@ -18,11 +39,37 @@ export default function Dashboard({
     [busy, setBusy] = useState(false);
   const b = h.banks.find((b) => b.id === bid) || h.banks[0],
     plans = h.plans.filter((p) => p.bank === b?.id),
-    mistakes = h.mistakes.filter((m) => m.bank === b?.id);
+    mistakes = h.mistakes
+      .filter((m) => m.bank === b?.id)
+      .sort((a, b) => a.mastery - b.mastery || a.id.localeCompare(b.id));
+  const visible = mistakes.filter(
+    (m) =>
+      (level < 0 || m.mastery === level) &&
+      (!filterUnit || m.unit === filterUnit) &&
+      m.stem.toLowerCase().includes(query.trim().toLowerCase()),
+  );
+  async function download() {
+    if (!b || !selected.length) return;
+    setExporting(true);
+    setErr("");
+    try {
+      const status = await exportMistakes(uid, b.id, selected);
+      setMessage(
+        status === "synced"
+          ? "JSON 文件已导出"
+          : "JSON 已导出，包含本地缓存；同步状态和历史完整性已在文件中标注",
+      );
+    } catch (e) {
+      setErr((e as Error).message);
+    } finally {
+      setExporting(false);
+    }
+  }
   async function start() {
     setBusy(true);
     setErr("");
     try {
+      await flushAll(uid, api<Run>);
       const s = await api<Run>("start", {
         bank: b?.id,
         mode,
@@ -68,6 +115,9 @@ export default function Dashboard({
               value={b?.id || ""}
               onChange={(e) => {
                 bank(e.target.value);
+                setSelected([]);
+                setFilterUnit("");
+                setMessage("");
                 setUnit("");
                 setPlan("");
               }}
@@ -112,8 +162,8 @@ export default function Dashboard({
         </div>
         {mode === "wrong" && (
           <p>
-            待重练 {mistakes.filter((m) => m.streak < 3).length} 题 · 已掌握{" "}
-            {mistakes.filter((m) => m.streak === 3).length} 题
+            待重练 {mistakes.filter((m) => m.mastery < 3).length} 题 · 已掌握{" "}
+            {mistakes.filter((m) => m.mastery === 3).length} 题
           </p>
         )}
         {mode === "exam" && !plans.length && (
@@ -125,7 +175,11 @@ export default function Dashboard({
             busy ||
             !b ||
             (mode === "exam" && !plans.length) ||
-            (mode === "wrong" && !mistakes.some((m) => m.streak < 3))
+            (mode === "wrong" &&
+              !mistakes.some((m) => m.mastery < 3) &&
+              !h.history.some(
+                (s) => s.mode === "wrong" && s.bank === b?.id && !s.finished,
+              ))
           }
           onClick={start}
         >
@@ -136,11 +190,91 @@ export default function Dashboard({
       {mode === "wrong" && (
         <section className="panel">
           <h2>我的错题</h2>
-          {mistakes.map((m) => (
-            <p key={m.id}>
-              <strong>{m.streak === 3 ? "已掌握" : m.streak + "/3"}</strong>　
-              {m.stem}
-            </p>
+          <div className="mastery-board" aria-label="掌握度数据看板">
+            <button aria-pressed={level === -1} onClick={() => setLevel(-1)}>
+              全部 <strong>{mistakes.length}</strong>
+            </button>
+            {[0, 1, 2, 3].map((n) => (
+              <button
+                key={n}
+                aria-pressed={level === n}
+                onClick={() => setLevel(n)}
+              >
+                {n ? `${n}星` : "未评分"}{" "}
+                <strong>
+                  {mistakes.filter((m) => m.mastery === n).length}
+                </strong>
+              </button>
+            ))}
+          </div>
+          <div className="fields">
+            <label>
+              搜索错题
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="题干关键词"
+              />
+            </label>
+            <label>
+              单元
+              <select
+                value={filterUnit}
+                onChange={(e) => setFilterUnit(e.target.value)}
+              >
+                <option value="">全部单元</option>
+                {b?.units.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <div className="actions">
+            <button
+              onClick={() =>
+                setSelected((s) => [
+                  ...new Set([...s, ...visible.map((m) => m.id)]),
+                ])
+              }
+            >
+              全选筛选结果
+            </button>
+            <button onClick={() => setSelected([])}>清空选择</button>
+            <button disabled={!selected.length || exporting} onClick={download}>
+              {exporting ? "正在导出…" : `导出 JSON（${selected.length}题）`}
+            </button>
+          </div>
+          <p>
+            <small>按掌握度升序排列 · 三星题保留在错题本中，可随时导出</small>
+          </p>
+          {message && <p role="status">{message}</p>}
+          {!visible.length && <p>当前筛选没有错题。</p>}
+          {visible.map((m) => (
+            <label className="mistake-row" key={m.id}>
+              <input
+                type="checkbox"
+                checked={selected.includes(m.id)}
+                onChange={(e) =>
+                  setSelected((s) =>
+                    e.target.checked
+                      ? [...s, m.id]
+                      : s.filter((id) => id !== m.id),
+                  )
+                }
+              />
+              <span>
+                <strong>
+                  {m.mastery
+                    ? "★".repeat(m.mastery) + "☆".repeat(3 - m.mastery)
+                    : "未评分"}
+                </strong>
+                　{m.stem}
+                <small>连续答对 {m.streak} 次</small>
+              </span>
+            </label>
           ))}
         </section>
       )}

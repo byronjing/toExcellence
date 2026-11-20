@@ -15,7 +15,7 @@ export default function Practice({ id, uid }: { id: string; uid: string }) {
   const offset = useRef(0),
     locked = useRef(false);
   function accept(r: Run) {
-    offset.current = Date.parse(r.serverTime) - Date.now();
+    offset.current = Date.parse(r.serverTime) - (r.receivedAt ?? Date.now());
     set(sync.project(r));
     time(Date.now());
   }
@@ -39,7 +39,6 @@ export default function Practice({ id, uid }: { id: string; uid: string }) {
       sync.enqueue(c);
       set(sync.project(run));
       pick([]);
-      void flush().catch(() => {});
     } catch (e) {
       error((e as Error).message);
     }
@@ -55,7 +54,6 @@ export default function Practice({ id, uid }: { id: string; uid: string }) {
         op === "get" ? await sync.load() : await api<Run>(op, { id, ...p });
       if (live.current && r.id === id) {
         accept(r);
-        if (sync.hasPending()) await flush();
       }
       return r;
     } catch (e) {
@@ -68,15 +66,25 @@ export default function Practice({ id, uid }: { id: string; uid: string }) {
   useEffect(() => {
     live.current = true;
     void act("get");
-    const retry = () => {
-      if (sync.hasPending()) void flush().catch(() => {});
+    const refresh = () => {
+      const cached = sync.cached();
+      if (cached && live.current) accept(cached);
     };
-    window.addEventListener("online", retry);
+    window.addEventListener("study-local", refresh);
+    window.addEventListener("storage", refresh);
     return () => {
       live.current = false;
-      window.removeEventListener("online", retry);
+      window.removeEventListener("study-local", refresh);
+      window.removeEventListener("storage", refresh);
     };
   }, [sync]);
+  useEffect(() => {
+    if (run?.mode !== "exam" || run.finished) return;
+    const timer = setInterval(() => {
+      if (sync.hasPending()) void flush().catch(() => {});
+    }, 30000);
+    return () => clearInterval(timer);
+  }, [sync, run?.mode, run?.finished]);
   useEffect(() => {
     if (!run?.deadline || run.finished) return;
     const h = setInterval(() => time(Date.now()), 1000);
@@ -89,7 +97,15 @@ export default function Practice({ id, uid }: { id: string; uid: string }) {
       )
     : null;
   useEffect(() => {
-    if (left === 0 && !run?.finished && !busy && !err) void act("get");
+    if (
+      left !== null &&
+      left <= 2 &&
+      left > 0 &&
+      !run?.finished &&
+      sync.hasPending()
+    )
+      void flush().catch(() => {});
+    if (left === 0 && !run?.finished && !busy && !err) void act("finish");
   }, [left, run?.finished, busy, err]);
   if (!run)
     return (
@@ -102,7 +118,7 @@ export default function Practice({ id, uid }: { id: string; uid: string }) {
     idx = run.finished ? review : run.pos,
     q = run.items[idx],
     saved = run.answers[q.id],
-    graded = !!q.answer,
+    graded = !!q.answer && (run.finished || !!saved),
     submitted = graded || (!exam && !!saved),
     wrong = graded && JSON.stringify(q.answer) !== JSON.stringify(saved),
     markWrong = wrong && !!saved?.length,
@@ -137,7 +153,13 @@ export default function Practice({ id, uid }: { id: string; uid: string }) {
       <div className="spread">
         <span className="kicker">{modes[run.mode]}</span>
         <small>
-          {err ? "同步失败" : busy || syncing ? "正在同步…" : "已同步到云端"}{" "}
+          {err
+            ? "操作失败，暂存记录保留"
+            : busy || syncing
+              ? "正在同步…"
+              : sync.hasPending()
+                ? "已保存在浏览器"
+                : "已同步到云端"}{" "}
           {left !== null &&
             !run.finished &&
             " · 剩余 " +
@@ -192,6 +214,37 @@ export default function Practice({ id, uid }: { id: string; uid: string }) {
           {saved?.join("、") || "未答"}
           {q.explanation && <p>{q.explanation}</p>}
         </div>
+      )}
+      {run.mode === "wrong" && graded && (
+        <div className="mastery-rating" role="group" aria-label="掌握度评分">
+          <span>掌握度</span>
+          {[1, 2, 3].map((star) => (
+            <button
+              key={star}
+              type="button"
+              aria-label={`${star}星${star === 3 ? "，已掌握" : ""}`}
+              aria-pressed={(run.mastery[q.id] || 0) === star}
+              className={
+                star <= (run.mastery[q.id] || 0) ? "star filled" : "star"
+              }
+              disabled={busy}
+              onClick={() =>
+                change({ op: "rate", question: q.id, mastery: star })
+              }
+            >
+              ★
+            </button>
+          ))}
+          <small>
+            {run.mastery[q.id] ? `${run.mastery[q.id]} / 3 星` : "未评分"} ·
+            三星表示已掌握
+          </small>
+        </div>
+      )}
+      {sync.hasRejected() && (
+        <p className="notice">
+          部分作答未在截止前被服务器接收，未计入成绩；记录仍保存在此浏览器。
+        </p>
       )}
       {err && (
         <p className="notice">
